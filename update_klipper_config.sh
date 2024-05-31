@@ -2,8 +2,23 @@
 
 CONFIG_DIR=~/printer_data/config
 BACKUP_DIR=$CONFIG_DIR/backup
-BRANCH="modular-dalton"
+BRANCH="v.02"
 SUBDIR="without-toolboard"
+
+echo "Please choose the configuration type:"
+echo "1. with-toolboard"
+echo "2. without-toolboard"
+read -p "Enter your choice (1 or 2): " choice
+
+if [ "$choice" -eq 1 ]; then
+    SUBDIR="with-toolboard"
+elif [ "$choice" -eq 2 ]; then
+    SUBDIR="without-toolboard"
+else
+    echo "Invalid choice. Exiting."
+    exit 1
+fi
+
 FILES_TO_UPDATE=(
     "aliases-openbus-v02-notoolboard.cfg"
     "bedheat-i400.cfg"
@@ -73,8 +88,7 @@ function update_configs {
         fi
     done
 
-    print_msg "Restarting Klipper service..."
-    sudo systemctl restart klipper
+    print_msg "Go restart klipper in mainsail for changes to take effect"
 
     print_msg "Configuration update complete!"
 }
