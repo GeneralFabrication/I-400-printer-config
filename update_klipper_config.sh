@@ -2,7 +2,7 @@
 
 CONFIG_DIR=~/printer_data/config
 BACKUP_DIR=$CONFIG_DIR/backup
-BRANCH="v.02"
+BRANCH="v0.2"
 SUBDIR="without-toolboard"
 
 echo "Please choose the configuration type:"
@@ -66,8 +66,7 @@ function rollback_configs {
                 print_msg "$file does not exist in the backup directory."
             fi
         done
-        print_msg "Rollback complete! Restarting Klipper service..."
-        sudo systemctl restart klipper
+        print_msg "Rollback complete! Go restart klipper from mainsail"
     else
         print_msg "Backup directory $BACKUP_DIR does not exist or is empty. Rollback failed."
     fi
