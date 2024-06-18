@@ -8,3 +8,4 @@ sonar.conf
 mainsail.cfg
 
 /build
+klipper-config-file-generator/build/

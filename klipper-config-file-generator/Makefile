@@ -1,5 +1,5 @@
 # Name of the Go binary
-BINARY_NAME=config_file_generator
+BINARY_NAME=klipper_config_file_generator
 
 # Go command paths (adjust if Go is not in your PATH)
 GOCMD=go
@@ -30,34 +30,18 @@ build-pi:
 	mkdir -p $(BUILD_DIR)
 	GOOS=linux GOARCH=arm64 $(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) -v $(SRC)
 
-# Run the addconfig command on Raspberry Pi
-addconfig: build-pi
-	$(BUILD_DIR)/$(BINARY_NAME) addconfig
+# Run the Go application on Raspberry Pi
+klipper-config: build-pi
+	$(BUILD_DIR)/$(BINARY_NAME)
 
-# Run the updateconfig command on Raspberry Pi
-updateconfig: build-pi
-	$(BUILD_DIR)/$(BINARY_NAME) updateconfig
-
-# Run the rollback command on Raspberry Pi
-rollback: build-pi
-	$(BUILD_DIR)/$(BINARY_NAME) rollback
-
-# Run the addconfig command on macOS
-addconfig-mac: build-mac
-	$(BUILD_DIR)/$(BINARY_NAME) addconfig
-
-# Run the updateconfig command on macOS
-updateconfig-mac: build-mac
-	$(BUILD_DIR)/$(BINARY_NAME) updateconfig
-
-# Run the rollback command on macOS
-rollback-mac: build-mac
-	$(BUILD_DIR)/$(BINARY_NAME) rollback
+# Run the Go application on macOS
+klipper-config-mac: build-mac
+	$(BUILD_DIR)/$(BINARY_NAME)
 
 # Clean the build directory
 clean:
 	rm -rf $(BUILD_DIR)
 
 # Phony targets
-.PHONY: all build-mac build-pi addconfig updateconfig rollback addconfig-mac updateconfig-mac rollback-mac clean
+.PHONY: all build-mac build-pi run run-mac clean
 

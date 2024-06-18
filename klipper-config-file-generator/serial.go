@@ -2,13 +2,14 @@ package main
 
 import (
     "fmt"
-    "io/ioutil"
-    "os/exec"
     "runtime"
     "strings"
+    "os"
+    "bufio"
+    "os/exec"
 )
 
-func extractAndReplaceSerialNumbers(localConfigPath, probeConfigPath string) {
+func extractAndReplaceSerialNumbers(configPath string) {
     fmt.Println("Extracting serial numbers...")
 
     beaconSerial := getSerial("Beacon")
@@ -26,10 +27,10 @@ func extractAndReplaceSerialNumbers(localConfigPath, probeConfigPath string) {
     fmt.Println("Beacon Serial:", beaconSerial)
     fmt.Println("MCU Serial:", mcuSerial)
 
-    fmt.Println("Updating local.cfg...")
-    replaceSerialInFile(localConfigPath, "serial:", mcuSerial)
-    fmt.Println("Updating probe-beacon-revh-SmartOrbiter-FixedMount.cfg...")
-    replaceSerialInFile(probeConfigPath, "serial:", beaconSerial)
+    fmt.Println("Updating mcu serial")
+    replaceSerialInFile(configPath, "[mcu]", "serial:", mcuSerial)
+    fmt.Println("Updating beacon serial")
+    replaceSerialInFile(configPath, "[beacon]", "serial:", beaconSerial)
 }
 
 func getSerial(identifier string) string {
@@ -37,7 +38,7 @@ func getSerial(identifier string) string {
         // Return fake serial numbers for macOS
         if identifier == "Beacon" {
             return "/dev/serial/by-id/usb-Beacon_Beacon_RevH_FAKE1234567890-if00"
-        } else if identifier == "Klipper" {
+        } else if identifier == "MCU" {
             return "/dev/serial/by-id/usb-Klipper_stm32h723xx_FAKE1234567890-if00"
         }
     }
@@ -51,27 +52,48 @@ func getSerial(identifier string) string {
     return strings.TrimSpace(string(output))
 }
 
-func replaceSerialInFile(filePath, searchPattern, serialNumber string) {
-    input, err := ioutil.ReadFile(filePath)
-    if err != nil {
-        fmt.Printf("Error reading file %s: %v\n", filePath, err)
-        return
-    }
+func replaceSerialInFile(filePath, section, key, newSerial string) {
+	input, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer input.Close()
 
-    lines := strings.Split(string(input), "\n")
-    for i, line := range lines {
-        if strings.HasPrefix(line, searchPattern) {
-            parts := strings.SplitN(line, " ", 2)
-            if len(parts) == 2 {
-                lines[i] = fmt.Sprintf("%s %s", searchPattern, serialNumber)
-            }
-        }
-    }
+	output, err := os.Create(filePath + ".tmp")
+	if err != nil {
+		fmt.Println("Error creating temp file:", err)
+		return
+	}
+	defer output.Close()
 
-    output := strings.Join(lines, "\n")
-    err = ioutil.WriteFile(filePath, []byte(output), 0644)
-    if err != nil {
-        fmt.Printf("Error writing to file %s: %v\n", filePath, err)
-    }
+	scanner := bufio.NewScanner(input)
+	writer := bufio.NewWriter(output)
+
+	inTargetSection := false
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.TrimSpace(line) == section {
+			inTargetSection = true
+		} else if strings.HasPrefix(strings.TrimSpace(line), "[") && strings.HasSuffix(strings.TrimSpace(line), "]") {
+			inTargetSection = false
+		}
+
+		if inTargetSection && strings.HasPrefix(strings.TrimSpace(line), key) {
+			fmt.Fprintln(writer, key+" "+newSerial)
+		} else {
+			fmt.Fprintln(writer, line)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	writer.Flush()
+	os.Rename(filePath+".tmp", filePath)
 }
 
