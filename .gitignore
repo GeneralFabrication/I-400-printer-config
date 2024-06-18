@@ -6,3 +6,5 @@ moonraker.conf
 timelapse.cfg
 sonar.conf
 mainsail.cfg
+
+/build
