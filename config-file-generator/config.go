@@ -39,6 +39,7 @@ var filesToUpdate = []string{
     "probe-beacon-revh.cfg",
 }
 
+
 func addConfig() {
     fmt.Println("Adding configuration files...")
     configure("addconfig")
@@ -66,7 +67,6 @@ func configure(action string) {
         return
     }
     branch = availableBranches[branchChoice-1]
-
     fmt.Println("Please choose the configuration type:")
     fmt.Println("1. with-toolboard")
     fmt.Println("2. without-toolboard")
@@ -90,47 +90,73 @@ func configure(action string) {
 
     fmt.Println("Pulling latest changes from branch", branch)
 
-	// Fetch latest changes
+    // Fetch latest changes
     err = runCommand("git", "fetch")
-	if err != nil {
-		fmt.Printf("Error fetching: %v\n", err)
-		return
-	}
-
-	// Checkout the specified branch
-	err = runCommand("git", "checkout", branch)
-	if err != nil {
-		fmt.Printf("Error checking out branch %s: %v\n", branch, err)
-		return
-	}
-
-	// Pull latest changes from origin branch
-	err = runCommand("git", "pull", "origin", branch)
-	if err != nil {
-		fmt.Printf("Error pulling latest changes from branch %s: %v\n", branch, err)
-		return
-	}
-
-    fmt.Println("Copying new configuration files...")
-    for _, file := range filesToUpdate {
-        src := filepath.Join("..", subdir, file)
-        dest := filepath.Join(configDir, file)
-
-        if _, err := os.Stat(src); err == nil {
-            if err := copyFile(src, dest); err != nil {
-                fmt.Printf("Error copying %s to %s: %v\n", src, dest, err)
-            } else {
-                fmt.Printf("Copied %s to %s\n", src, dest)
-            }
-        } else {
-            fmt.Printf("%s does not exist in the repository subdirectory.\n", file)
-        }
+    if err != nil {
+        fmt.Printf("Error fetching: %v\n", err)
+        return
     }
 
-    // After copying, replace the serial numbers in the destination files
+    // Checkout the specified branch
+    err = runCommand("git", "checkout", branch)
+    if err != nil {
+        fmt.Printf("Error checking out branch %s: %v\n", branch, err)
+        return
+    }
+
+    // Pull latest changes from origin branch
+    err = runCommand("git", "pull", "origin", branch)
+    if err != nil {
+        fmt.Printf("Error pulling latest changes from branch %s: %v\n", branch, err)
+        return
+    }
+
+    fmt.Println("Generating consolidated configuration file...")
+    consolidatedContent, err := generateConsolidatedConfig(subdir)
+    if err != nil {
+        fmt.Printf("Error generating consolidated configuration: %v\n", err)
+        return
+    }
+
+    outputFile := filepath.Join(configDir, "printer.cfg")
+    err = os.WriteFile(outputFile, []byte(consolidatedContent), 0644)
+    if err != nil {
+        fmt.Printf("Error writing to %s: %v\n", outputFile, err)
+    } else {
+        fmt.Printf("Consolidated configuration written to %s\n", outputFile)
+    }
+
     fmt.Println("Extracting and replacing serial numbers...")
     extractAndReplaceSerialNumbers(filepath.Join(configDir, "local.cfg"), filepath.Join(configDir, "probe-beacon-revh-SmartOrbiter-FixedMount.cfg"))
 
     fmt.Println("Go restart klipper in mainsail for changes to take effect")
     fmt.Println("Configuration update complete!")
+}
+
+func generateConsolidatedConfig(subdir string) (string, error) {
+    inputFile := filepath.Join("..", subdir, "printer.cfg")
+    content, err := os.ReadFile(inputFile)
+    if err != nil {
+        return "", fmt.Errorf("error reading printer.cfg: %v", err)
+    }
+
+    consolidatedContent := string(content)
+    lines := strings.Split(consolidatedContent, "\n")
+
+    for i, line := range lines {
+        if strings.HasPrefix(line, "[include ") {
+            parts := strings.Split(line, " ")
+            if len(parts) == 2 {
+                fileName := strings.TrimSuffix(parts[1], "]")
+                filePath := filepath.Join("..", subdir, fileName)
+                fileContent, err := os.ReadFile(filePath)
+                if err != nil {
+                    return "", fmt.Errorf("error reading %s: %v", filePath, err)
+                }
+                lines[i] = string(fileContent)
+            }
+        }
+    }
+
+    return strings.Join(lines, "\n"), nil
 }
