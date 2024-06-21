@@ -11,8 +11,8 @@ import (
 
 var (
 	homeDir, _   = os.UserHomeDir()
-	configPath    = filepath.Join(homeDir, "printer_data/config/printer.cfg")
-    configDir = filepath.Join(homeDir, "printer_data/config")
+	configPath   = filepath.Join(homeDir, "printer_data/config/printer.cfg")
+	configDir    = filepath.Join(homeDir, "printer_data/config")
 	subdirTool   = "with-toolboard"
 	subdirNoTool = "without-toolboard"
 	branch       string
@@ -31,35 +31,39 @@ func main() {
 	_, err := fmt.Scanf("%d", &configChoice)
 	if err != nil || (configChoice < 1 || configChoice > 3) {
 		fmt.Println("Invalid choice. Exiting.")
-		return
+		panic(err)
 	}
 
 	switch configChoice {
 	case 1:
-		addConfig()
+		err = addConfig()
 	case 2:
-		updateConfig()
+		err = updateConfig()
 	case 3:
-		rollbackConfig()
+		err = rollbackConfig()
+	}
+
+	if err != nil {
+		panic(err)
 	}
 }
 
-func addConfig() {
+func addConfig() error {
 	fmt.Println("Adding config files...")
-	configure("add")
+	return configure("add")
 }
 
-func updateConfig() {
+func updateConfig() error {
 	fmt.Println("Updating config files...")
-	configure("update")
+	return configure("update")
 }
 
-func rollbackConfig() {
+func rollbackConfig() error {
 	fmt.Println("Rolling back config files...")
-	rollbackConfigs()
+	return rollbackConfigs()
 }
 
-func configure(action string) {
+func configure(action string) error {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println("Available openbus versions:")
@@ -68,12 +72,16 @@ func configure(action string) {
 	}
 
 	fmt.Print("Enter the number of the openbus version you want to use: ")
-	inputBranch, _ := reader.ReadString('\n')
+	inputBranch, err := reader.ReadString('\n')
+	if err != nil {
+		fmt.Printf("Error reading input: %v\n", err)
+		return err
+	}
 	inputBranch = strings.TrimSpace(inputBranch)
 	branchChoice, err := strconv.Atoi(inputBranch)
 	if err != nil || branchChoice < 1 || branchChoice > len(availableBranches) {
 		fmt.Println("Invalid choice. Exiting.")
-		return
+		return err
 	}
 	branch = availableBranches[branchChoice-1]
 
@@ -86,7 +94,7 @@ func configure(action string) {
 	_, err = fmt.Scanf("%d", &choice)
 	if err != nil || (choice != 1 && choice != 2) {
 		fmt.Println("Invalid choice. Exiting.")
-		return
+		return err
 	}
 
 	subdir := subdirNoTool
@@ -102,7 +110,7 @@ func configure(action string) {
 	_, err = fmt.Scanf("%d", &choice)
 	if err != nil || (choice != 1 && choice != 2) {
 		fmt.Println("Invalid choice. Exiting.")
-		return
+		return err
 	}
 
 	selectedFile := "extruder-dyze500.cfg"
@@ -116,58 +124,74 @@ func configure(action string) {
 	err = runCommand("git", "fetch")
 	if err != nil {
 		fmt.Printf("Error fetching: %v\n", err)
-		return
+		return err
 	}
 
 	// Checkout the specified branch
 	err = runCommand("git", "checkout", branch)
 	if err != nil {
 		fmt.Printf("Error checking out branch %s: %v\n", branch, err)
-		return
+		return err
 	}
 
 	// Pull latest changes from origin branch
 	err = runCommand("git", "pull", "origin", branch)
 	if err != nil {
 		fmt.Printf("Error pulling latest changes from branch %s: %v\n", branch, err)
-		return
+		return err
 	}
 
 	fmt.Println("Generating consolidated configuration file...")
 	consolidatedContent, err := generateConsolidatedConfig(subdir, selectedFile)
 	if err != nil {
 		fmt.Printf("Error generating consolidated configuration: %v\n", err)
-		return
+		return err
 	}
 
-    runCommand("mkdir", "-p", configDir)
+	err = runCommand("mkdir", "-p", configDir)
+	if err != nil {
+		fmt.Printf("Error creating directory %s: %v\n", configDir, err)
+		return err
+	}
 
 	outputFile := filepath.Join(configPath)
 	err = os.WriteFile(outputFile, []byte(consolidatedContent), 0644)
 	if err != nil {
 		fmt.Printf("Error writing to %s: %v\n", outputFile, err)
+		return err
 	} else {
 		fmt.Printf("Consolidated configuration written to %s\n", outputFile)
+
 	}
 
-    copyMoonrakerConfig(subdir)
+	err = copyMoonrakerConfig(subdir)
+	if err != nil {
+		fmt.Printf("Error copying moonraker.conf: %v\n", err)
+		return err
+	}
 
 	fmt.Println("Extracting and replacing serial numbers...")
-	extractAndReplaceSerialNumbers(configPath)
+	err = extractAndReplaceSerialNumbers(configPath)
+	if err != nil {
+		fmt.Printf("Error extracting and replacing serial numbers: %v\n", err)
+		return err
+	}
 
 	fmt.Println("Go restart klipper in mainsail for changes to take effect")
 	fmt.Println("Configuration update complete!")
+
+	return nil
 }
 
 func copyMoonrakerConfig(subdir string) error {
-    srcFile := filepath.Join(subdir, "moonraker.conf")
-    dstFile := filepath.Join(configDir, "moonraker.conf")
+	srcFile := filepath.Join(subdir, "moonraker.conf")
+	dstFile := filepath.Join(configDir, "moonraker.conf")
 
-    err := copyFile(srcFile, dstFile)
-    if err != nil {
-        return fmt.Errorf("error copying moonraker.conf: %v", err)
-    }
+	err := copyFile(srcFile, dstFile)
+	if err != nil {
+		return fmt.Errorf("error copying moonraker.conf: %v", err)
+	}
 
-    fmt.Printf("Successfully copied moonraker.conf to %s\n", dstFile)
-    return nil
+	fmt.Printf("Successfully copied moonraker.conf to %s\n", dstFile)
+	return nil
 }
