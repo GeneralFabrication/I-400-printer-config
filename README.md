@@ -1,5 +1,10 @@
 # I-400-printer-config
 .cfg files for I-400 config w/ Klipper
+Use this to:
+- Add config files when setting up a new printer
+- Choose toolboard configuration
+- Update current config files to latest version
+- Choose extruder
 
 ## Usage
 clone this repo
