@@ -49,7 +49,7 @@ func getSerial(identifier string) (string, error) {
         // Return fake serial numbers for macOS
         if identifier == "Beacon" {
             return "/dev/serial/by-id/usb-Beacon_Beacon_RevH_FAKE1234567890-if00", nil
-        } else if identifier == "MCU" {
+        } else if identifier == "Klipper" {
             return "/dev/serial/by-id/usb-Klipper_stm32h723xx_FAKE1234567890-if00", nil
         }
     }
