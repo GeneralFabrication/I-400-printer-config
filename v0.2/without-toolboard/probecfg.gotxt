@@ -1,21 +1,39 @@
-# START probe-heschen-pl-08n.cfg
+# START probe-beacon-revh-SmartOrbiter-FixedMount.cfg
+
+
+####################################
+######## BEACON & OFFSETS ##########
+####################################
+
+[beacon]
+serial: {{.BeaconSerial}}
+x_offset: -49.5 # update with offset from nozzle on your machine
+y_offset: -28.5 # update with offset from nozzle on your machine
+mesh_main_direction: x
+mesh_runs: 2
+
+
+[resonance_tester]
+accel_chip: beacon
+probe_points: 130, 160, 30
+
 
 ####################################
 ######### PROBE & OFFSETS ##########
 ####################################
-
-[probe]
-pin: ^!S3
-x_offset: -35
-y_offset: -69
-#z_offset: 1
-#⚠TO BE CALIBRATED⚠
-speed: 8.0
-samples: 5
-sample_retract_dist: 4.0
-samples_result: median
-samples_tolerance: 0.030
-samples_tolerance_retries: 10
+#Removed for BEACON
+#[probe]
+#pin: ^!S3
+#x_offset: -35
+#y_offset: -69
+####z_offset: 1
+####⚠TO BE CALIBRATED⚠
+#speed: 8.0
+#samples: 5
+#sample_retract_dist: 4.0
+#samples_result: median
+#samples_tolerance: 0.030
+#samples_tolerance_retries: 10
 
 
 ########################################
@@ -24,8 +42,8 @@ samples_tolerance_retries: 10
 ########################################
 
 [safe_z_home]
-home_xy_position: 221, 190
-speed: 100.0
+home_xy_position: 180, 160
+speed: 50.0
 z_hop: 5
 z_hop_speed: 40.0 
 
@@ -47,16 +65,16 @@ z_positions:
 #   first entry corresponds to stepper_z, the second to stepper_z1,
 #   the third to stepper_z2, etc. This parameter must be provided.
 points:
-    310, 55         # Z
-    80, 190         # Z1
-    310, 330        # Z2
+    280, 65         # Z
+    80, 160         # Z1
+    280, 280        # Z2
 #⚠TO BE CALIBRATED⚠
 #   A list of X, Y coordinates (one per line; subsequent lines
 #   indented) that should be probed during a Z_TILT_ADJUST command.
 #   Specify coordinates of the nozzle and be sure the probe is above
 #   the bed at the given nozzle coordinates. This parameter must be
 #   provided.
-speed: 100
+speed: 50
 #   The speed (in mm/s) of non-probing moves during the calibration.
 #   The default is 50.
 horizontal_move_z: 15.0
@@ -65,7 +83,7 @@ horizontal_move_z: 15.0
 retries: 5
 #   Number of times to retry if the probed points aren't within
 #   tolerance.
-retry_tolerance: 0.050
+retry_tolerance: 0.020
 #⚠TO BE CALIBRATED⚠
 #   If retries are enabled then retry if largest and smallest probed
 #   points differ more than retry_tolerance. Note the smallest unit of
@@ -104,17 +122,18 @@ horizontal_move_z: 5
 #   to adjust the mesh_origin in an effort to maximize the size of the
 #   mesh radius. Default is 0, 0. This parameter must be omitted for
 #   rectangular beds.
-mesh_min: 50, 0
+# mesh_min: 49.5, 28.5
+mesh_min: 10, 10 #see if it's really relative to the probe
 #   Defines the minimum X, Y coordinate of the mesh for rectangular
 #   beds. This coordinate is relative to the probe's location. This
 #   will be the first point probed, nearest to the origin. This
 #   parameter must be provided for rectangular beds.
-mesh_max: 280, 260
+mesh_max: 250, 260
 #   Defines the maximum X, Y coordinate of the mesh for rectangular
 #   beds. Adheres to the same principle as mesh_min, however this will
 #   be the furthest point probed from the bed's origin. This parameter
 #   must be provided for rectangular beds.
-probe_count: 9, 9
+probe_count: 99, 99
 #   For rectangular beds, this is a comma separate pair of integer
 #   values X, Y defining the number of points to probe along each
 #   axis. A single value is also valid, in which case that value will
@@ -154,7 +173,7 @@ algorithm: bicubic
 #   The interpolation algorithm to use. May be either "lagrange" or
 #   "bicubic". This option will not affect 3x3 grids, which are forced
 #   to use lagrange sampling. Default is lagrange.
-bicubic_tension: 0.1
+bicubic_tension: 0.05
 #   When using the bicubic algorithm the tension parameter above may
 #   be applied to change the amount of slope interpolated. Larger
 #   numbers will increase the amount of slope, which results in more
@@ -172,6 +191,4 @@ bicubic_tension: 0.1
 
 
 
-# END probe-heschen-pl-08n.cfg
-
-
+# END probe-beacon-revh-SmartOrbiter-FixedMount.cfg

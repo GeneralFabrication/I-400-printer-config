@@ -1,4 +1,4 @@
-# START probe-beacon-revh.cfg
+# START probe-beacon-revh-SmartOrbiter-FixedMount.cfg
 
 
 ####################################
@@ -6,9 +6,9 @@
 ####################################
 
 [beacon]
-serial: /dev/serial/by-id/usb-Beacon_Beacon_RevH_D231ACF65154364134202020FF141030-if00
-x_offset: -55 # update with offset from nozzle on your machine
-y_offset: -25 # update with offset from nozzle on your machine
+serial: {{.BeaconSerial}}
+x_offset: -49.5 # update with offset from nozzle on your machine
+y_offset: -28.5 # update with offset from nozzle on your machine
 mesh_main_direction: x
 mesh_runs: 2
 
@@ -42,7 +42,7 @@ probe_points: 130, 160, 30
 ########################################
 
 [safe_z_home]
-home_xy_position: 130, 160
+home_xy_position: 180, 160
 speed: 50.0
 z_hop: 5
 z_hop_speed: 40.0 
@@ -65,9 +65,9 @@ z_positions:
 #   first entry corresponds to stepper_z, the second to stepper_z1,
 #   the third to stepper_z2, etc. This parameter must be provided.
 points:
-    230, 65         # Z
-    10, 160         # Z1
-    230, 280        # Z2
+    280, 65         # Z
+    80, 160         # Z1
+    280, 280        # Z2
 #⚠TO BE CALIBRATED⚠
 #   A list of X, Y coordinates (one per line; subsequent lines
 #   indented) that should be probed during a Z_TILT_ADJUST command.
@@ -122,12 +122,13 @@ horizontal_move_z: 5
 #   to adjust the mesh_origin in an effort to maximize the size of the
 #   mesh radius. Default is 0, 0. This parameter must be omitted for
 #   rectangular beds.
-mesh_min: 35, 40
+# mesh_min: 49.5, 28.5
+mesh_min: 10, 10 #see if it's really relative to the probe
 #   Defines the minimum X, Y coordinate of the mesh for rectangular
 #   beds. This coordinate is relative to the probe's location. This
 #   will be the first point probed, nearest to the origin. This
 #   parameter must be provided for rectangular beds.
-mesh_max: 260, 280
+mesh_max: 250, 260
 #   Defines the maximum X, Y coordinate of the mesh for rectangular
 #   beds. Adheres to the same principle as mesh_min, however this will
 #   be the furthest point probed from the bed's origin. This parameter
@@ -190,6 +191,4 @@ bicubic_tension: 0.05
 
 
 
-# END probe-beacon-revh.cfg
-
-
+# END probe-beacon-revh-SmartOrbiter-FixedMount.cfg

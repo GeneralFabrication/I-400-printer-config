@@ -1,0 +1,252 @@
+#START printer.cfg
+# printer.cfg (openbus v0.2, w/o toolboard)
+
+#####################################
+### SPEED & ACCELERATION SETTINGS ###
+#####################################
+
+[printer]
+kinematics: corexy
+max_accel: 15000
+max_velocity: 450
+max_z_velocity: 50
+max_z_accel: 50
+
+
+
+####################################
+##### PRESSURE ADVANCE SETTINGS ####
+####################################
+#Coming soon?
+
+
+
+################################
+##### INPUT SHAPER SETTINGS ####
+################################
+
+[input_shaper]
+#based on input shaper .pngs x3 and y3 in config folder
+shaper_freq_x: 78.4 #Max sm 0.09, accels 6800
+shaper_type_x: 2hump_ei
+shaper_freq_y: 54.6 #Max sm 0.07, accels 8800
+shaper_type_y: mzv
+
+
+
+##################################
+##### UI: TEMPERATURE REPORTS ####
+##################################
+
+[thermistor BoardTherm]
+temperature1: 25.0
+resistance1: 10000.0
+beta: 3950
+
+[temperature_sensor M6_Driver]
+sensor_type: BoardTherm
+sensor_pin: M6_THERM
+min_temp: -20
+max_temp: 110
+
+[temperature_sensor M3_Driver]
+sensor_type: BoardTherm
+sensor_pin: M3_THERM
+min_temp: -20
+max_temp: 110
+
+[temperature_sensor 12V_DC-DC]
+sensor_type: BoardTherm
+sensor_pin: 12V_THERM
+min_temp: -20
+max_temp: 110
+
+[temperature_sensor 5V_DC-DC]
+sensor_type: BoardTherm
+sensor_pin: 5V_THERM
+min_temp: -20
+max_temp: 110
+
+[temperature_sensor RPi]
+sensor_type: temperature_host
+sensor_path: /sys/class/thermal/thermal_zone0/temp
+
+[temperature_sensor Openbus_MCU]
+sensor_type: temperature_mcu
+
+
+
+#####################
+### Chamber Therm ###
+#####################
+# Not all machines have
+# chamber temp monitoring.
+
+[temperature_sensor chamber]
+sensor_type: NTC 100K MGB18-104F39050L32
+sensor_pin: T3
+
+
+
+######################################
+### BOARD-RPI SERIAL COMMUNICATION ###
+######################################
+
+[mcu]
+serial: {{.McuSerial}}
+restart_method: command
+
+
+
+###############################
+####### SAVED BED MESHES ######
+###############################
+#Coming soon? This could stay in the
+#auto-generated section at the bottom
+#of printer.cfg, not sure what we
+#want in the end. Discussion needed
+
+
+######## MACROS AND MACHINE OPERATION #######
+{{.MainsailConfig}}
+{{.PrintControlConfig}}
+{{.SafeHomeConfig}}
+#############################################
+### Contains: macros for basic printer    ###
+### running, e.g. parking, pausing,       ###
+### homing, set_kinematic_position, etc.  ###
+#############################################
+#--------------------------------------------------------------------------------------------------------
+
+
+
+
+
+[virtual_sdcard] #Should this go into local.cfg?
+path: /home/gfcadmin/printer_data/gcodes
+on_error_gcode: CANCEL_PRINT
+
+[force_move]
+enable_force_move: True
+
+[gcode_arcs] #Should this go into local.cfg also?
+resolution: 1.0 #formerly 0.05
+
+
+
+#--------------------------------------------------------------------------------------------------------
+
+
+
+###############################
+########  PIN ALIASES  ########
+###############################
+
+{{.AliasesConfig}}
+
+#############################################
+### Contains: Pin map for printer board,  ###
+### whether or not a toolboard is in use  ###
+### etc.                                  ###
+#############################################
+#--------------------------------------------------------------------------------------------------------
+
+
+
+##################################
+########### HOT ENDS #############
+##################################
+
+{{.ExtruderConfig}}
+
+#############################################
+### Contains: Extruder & hot end pins,    ###
+### run currents, direction pins,         ###
+### extrusion settings, verify_heater,    ###
+### heat break fan, nozzle diameter,      ###
+### filament diameter, pressure advance   ###
+#############################################
+#--------------------------------------------------------------------------------------------------------
+
+
+
+##################################
+############# PROBES #############
+##################################
+
+### Specify probe (by uncommenting one of the following) ###
+
+{{.ProbeConfig}}
+
+#############################################
+### Contains: probe pins, X/Y offsets,    ###
+### sample counts & tolerances, Z-offset, ###
+### bed_mesh creation settings,           ###
+### Z-tilt position settings              ###
+#############################################
+#--------------------------------------------------------------------------------------------------------
+
+
+
+################################
+######### PART COOLING #########
+################################
+
+### Specify part cooling (by uncommenting one of the following) ###
+
+{{.PartCoolingConfig}}
+
+#################################################
+### Contains: pump/fan pins, max power,       ###
+### cycle time, pwm settings, off below, etc. ###
+#################################################
+#--------------------------------------------------------------------------------------------------------
+
+
+
+##################################
+###### XY KINEMATICS CONFIG ######
+##################################
+
+### Specify XY Kinematics (by uncommenting one of the following) ###
+
+{{.KinematicsXYConfig}}
+
+#################################################
+### Contains: Stepper motors and controllers, ###
+### run currents, motor pins, directions,     ###
+### endstop locations, positions, etc.        ###
+#################################################
+#--------------------------------------------------------------------------------------------------------
+
+
+
+##################################
+####### Z-AXIS BED MOTION ########
+##################################
+
+### Specify Z-Axis (by uncommenting one of the following) ###
+
+{{.KinematicsZConfig}}
+
+#################################################
+### Contains: Stepper motors and controllers, ###
+### run currents, motor pins, directions,     ###
+### endstop locations, positions, etc.        ###
+#################################################
+#--------------------------------------------------------------------------------------------------------
+
+
+
+##################################
+########### HEATER BED ###########
+##################################
+
+### Specify Bed Heater (by uncommenting one of the following) ###
+
+{{.BedHeaterConfig}}
+
+#################################################
+### Contains: heater pin, sensor type,        ###
+### pwm settings, min & max temps, etc.       ###
+#################################################
