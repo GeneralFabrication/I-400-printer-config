@@ -1,7 +1,7 @@
-#I-400 Printer Configuration
+# I-400 Printer Configuration
 This repository contains configuration files for the I-400 3D printer running Klipper firmware. The configurations are provided as .cfg Go template files and are available for use through an executable on the printers.
 
-#Directory Structure
+# Directory Structure
 /v0.2: Contains two subdirectories for different configurations:
 /v0.2/with-toolboard: Configuration files for a 3D printer with a toolboard attached. Includes settings for:
 Extruder
@@ -27,7 +27,8 @@ Safe homing
 Print cancellation
 TMC2160 and TMC2209 drivers
 Heaters, fans, thermistors, and endstops
-#Ignored Files
+
+# Ignored Files
 The .gitignore file specifies the following files to be ignored:
 
 crowsnest.conf
