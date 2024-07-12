@@ -3,12 +3,19 @@ This repository contains configuration files for the I-400 3D printer running Kl
 
 # Directory Structure
 /v0.2: Contains two subdirectories for different configurations:
+
 /v0.2/with-toolboard: Configuration files for a 3D printer with a toolboard attached. Includes settings for:
+
 Extruder
+
 Bed heating
+
 Kinematics
+
 Probe
+
 Part cooling
+
 Print control
 TMC2208 and TMC2209 stepper drivers
 Temperature sensors
