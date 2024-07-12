@@ -17,29 +17,48 @@ Probe
 Part cooling
 
 Print control
+
 TMC2208 and TMC2209 stepper drivers
+
 Temperature sensors
+
 Bed mesh generation
+
 Board-RPI serial communication
+
 Gcode macros for homing behavior
+
 /v0.2/without-toolboard: Configuration files for a 3D printer without a toolboard. Includes settings for:
+
 Bed heater
+
 Extruder
+
 Part cooling fan
+
 XY kinematics
+
 Z-axis bed motion
+
 Probe
+
 General print control
+
 Safe homing
+
 Print cancellation
+
 TMC2160 and TMC2209 drivers
+
 Heaters, fans, thermistors, and endstops
 
 # Ignored Files
 The .gitignore file specifies the following files to be ignored:
 
 crowsnest.conf
+
 .moonraker.conf.bkp
+
 timelapse.cfg
 sonar.conf
 mainsail.cfg
