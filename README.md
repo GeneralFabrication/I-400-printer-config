@@ -1,6 +1,8 @@
 # I-400 Printer Configuration
 This repository contains configuration files for the I-400 3D printer running Klipper firmware. The configurations are provided as .cfg Go template files and are available for use through an executable on the printers.
 
+Go to the klipper-config-file-generator repo to get these config files downloaded to your printer
+
 # Directory Structure
 /v0.2: Contains two subdirectories for different configurations:
 
